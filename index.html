@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090d1a">
+  <title>TimeStop — таймер и секундомер</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="shortcut icon" href="images/favicon.png"
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#home" aria-label="TimeStop — главная">
+      <span class="brand-mark">◷</span><span>Time<span class="accent">Stop</span></span>
+    </a>
+    <nav class="nav" aria-label="Главная навигация">
+      <a href="#home">Главная</a>
+      <a href="#tools">Инструменты</a>
+      <a href="#about">О проекте</a>
+    </nav>
+    <div class="live-pill"><span class="live-dot"></span> Твоё время под контролем</div>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-line"></span> УПРАВЛЯЙ СВОИМ ВРЕМЕНЕМ</p>
+        <h1>Каждая секунда<br>имеет <span class="gradient-text">значение.</span></h1>
+        <p class="hero-description">Простой и удобный инструмент для концентрации, учёбы, тренировок и ежедневных задач.</p>
+        <a class="hero-button" href="#tools">Начать пользоваться <span>↘</span></a>
+        <div class="hero-stats">
+          <div><strong>2</strong><span>инструмента</span></div>
+          <div class="stat-divider"></div>
+          <div><strong>00:00</strong><span>лишних сложностей</span></div>
+          <div class="stat-divider"></div>
+          <div><strong>∞</strong><span>возможностей</span></div>
+        </div>
+      </div>
+      <div class="hero-art" aria-label="Декоративная иллюстрация секундомера">
+        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+        <div class="glow"></div>
+        <div class="stopwatch-art">
+          <div class="watch-button"></div><div class="watch-crown"></div>
+          <div class="watch-face">
+            <span class="tick t1"></span><span class="tick t2"></span><span class="tick t3"></span><span class="tick t4"></span>
+            <span class="tick t5"></span><span class="tick t6"></span><span class="tick t7"></span><span class="tick t8"></span>
+            <span class="watch-hand"></span><span class="watch-pin"></span>
+          </div>
+        </div>
+        <div class="floating-card floating-top"><span class="floating-icon">✦</span><div><b>Фокус включён</b><small>Время работать</small></div></div>
+        <div class="floating-card floating-bottom"><span class="mini-pulse"></span><div><b>Твой ритм</b><small>Твой результат</small></div></div>
+      </div>
+    </section>
+
+    <section class="tools-section" id="tools">
+      <div class="section-heading">
+        <div><p class="eyebrow">ВЫБЕРИ ИНСТРУМЕНТ</p><h2>Время работать.</h2></div>
+        <p>Всё необходимое — в одном месте.</p>
+      </div>
+
+      <div class="tool-layout">
+        <section class="app-card timer-card" id="timerCard">
+          <div class="card-top">
+            <div><span class="card-kicker">01 / ОБРАТНЫЙ ОТСЧЁТ</span><h3>Таймер</h3></div>
+            <span class="card-symbol purple-symbol">◷</span>
+          </div>
+          <p class="card-description">Задай время и позволь TimeStop следить за отсчётом.</p>
+
+          <div class="timer-display" aria-label="Оставшееся время">
+            <div class="time-unit"><input id="hours" type="number" min="0" max="99" value="0" aria-label="Часы"><span>ЧАСЫ</span></div>
+            <b class="time-colon">:</b>
+            <div class="time-unit"><input id="minutes" type="number" min="0" max="59" value="5" aria-label="Минуты"><span>МИНУТЫ</span></div>
+            <b class="time-colon">:</b>
+            <div class="time-unit"><input id="seconds" type="number" min="0" max="59" value="0" aria-label="Секунды"><span>СЕКУНДЫ</span></div>
+          </div>
+
+          <div class="progress-track"><div id="timerProgress"></div></div>
+          <div class="timer-status" id="timerMessage" aria-live="polite">Готов к запуску</div>
+          <div class="button-row">
+            <button class="btn btn-primary" id="startTimer">▶ <span>Старт</span></button>
+            <button class="btn btn-secondary" id="pauseTimer">Ⅱ <span>Пауза</span></button>
+            <button class="btn btn-ghost" id="resetTimer" aria-label="Сбросить таймер" title="Сбросить">↻</button>
+          </div>
+          <div class="presets"><span>БЫСТРЫЙ ВЫБОР</span>
+            <button data-minutes="1">1 мин</button><button data-minutes="5">5 мин</button><button data-minutes="10">10 мин</button><button data-minutes="25">25 мин</button>
+          </div>
+        </section>
+
+        <section class="app-card stopwatch-card" id="stopwatchCard">
+          <div class="card-top">
+            <div><span class="card-kicker">02 / ИЗМЕРЕНИЕ ВРЕМЕНИ</span><h3>Секундомер</h3></div>
+            <span class="card-symbol cyan-symbol">◴</span>
+          </div>
+          <p class="card-description">Запускай отсчёт, ставь на паузу и сохраняй круги.</p>
+          <div class="stopwatch-display" id="stopwatchDisplay">00<span>:</span>00<span>:</span>00<small>.00</small></div>
+          <div class="stopwatch-caption"><span class="status-indicator" id="watchIndicator"></span><span id="watchMessage" aria-live="polite">Готов к запуску</span></div>
+          <div class="button-row">
+            <button class="btn btn-primary cyan-button" id="startWatch">▶ <span>Старт</span></button>
+            <button class="btn btn-secondary" id="pauseWatch">Ⅱ <span>Пауза</span></button>
+            <button class="btn btn-ghost" id="resetWatch" aria-label="Сбросить секундомер" title="Сбросить">↻</button>
+            <button class="btn btn-ghost lap-button" id="lapWatch" aria-label="Записать круг" title="Записать круг">＋</button>
+          </div>
+          <div class="laps-heading"><span>КРУГИ</span><button id="clearLaps">Очистить</button></div>
+          <ol id="laps" class="laps"><li class="empty-lap">Круги появятся здесь после запуска</li></ol>
+        </section>
+      </div>
+    </section>
+
+    <section class="about-section" id="about">
+      <div class="about-icon">✦</div>
+      <div><p class="eyebrow">МАЛЕНЬКИЙ ШАГ — БОЛЬШОЙ РЕЗУЛЬТАТ</p><h2>Сосредоточься на главном.</h2><p>Выбери задачу, установи время и начни. TimeStop помогает держать темп и не отвлекаться на лишнее.</p></div>
+      <a href="#tools" class="about-link">Попробовать <span>↗</span></a>
+    </section>
+  </main>
+
+  <footer><a class="brand" href="#home"><span class="brand-mark">◷</span><span>Time<span class="accent">Stop</span></span></a><span>ТВОЁ ВРЕМЯ ИМЕЕТ ЗНАЧЕНИЕ</span><span>© 2026 TimeStop</span></footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
