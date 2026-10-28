@@ -60,22 +60,49 @@ function timerTick() {
     $("timerMessage").textContent = "✓ Время вышло! Отличная работа.";
     $("timerProgress").style.width = "0%";
     notify("Время вышло!");
-    // Ненавязчивый звуковой сигнал срабатывает, если браузер разрешает звук.
-    try {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        const ctx = new AudioContextClass();
-        const oscillator = ctx.createOscillator();
-        const gain = ctx.createGain();
-        oscillator.connect(gain);
-        gain.connect(ctx.destination);
-        oscillator.frequency.value = 880;
-        gain.gain.value = 0.08;
-        oscillator.start();
-        oscillator.stop(ctx.currentTime + 0.35);
-        oscillator.onended = () => ctx.close();
-      }
-    } catch (_) {}
+    // Звуковой сигнал при окончании таймера
+try {
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+
+  if (AudioContextClass) {
+    const ctx = new AudioContextClass();
+
+    const playBeep = (frequency, startTime, duration) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.linearRampToValueAtTime(0.3, startTime + 0.03);
+      gain.gain.setValueAtTime(0.3, startTime + duration - 0.05);
+      gain.gain.linearRampToValueAtTime(0.001, startTime + duration);
+
+      oscillator.connect(gain);
+      gain.connect(ctx.destination);
+
+      oscillator.start(startTime);
+      oscillator.stop(startTime + duration);
+    };
+
+    if (ctx.state === "suspended") {
+      ctx.resume().then(() => {
+        const now = ctx.currentTime;
+        playBeep(880, now, 0.3);
+        playBeep(880, now + 0.4, 0.3);
+        setTimeout(() => ctx.close(), 1200);
+      });
+    } else {
+      const now = ctx.currentTime;
+      playBeep(880, now, 0.3);
+      playBeep(880, now + 0.4, 0.3);
+      setTimeout(() => ctx.close(), 1200);
+    }
+  }
+} catch (error) {
+  console.log("Не удалось воспроизвести сигнал:", error);
+}
   }
 }
 
