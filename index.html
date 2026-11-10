@@ -1,120 +1,320 @@
+
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="kk">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#090d1a">
-  <title>TimeStop — таймер и секундомер</title>
+
+  <title>TimeStop — таймер және секундомер</title>
+
   <link rel="stylesheet" href="style.css">
-  <link rel="shortcut icon" href="images/favicon.png"
+  <link rel="icon" type="image/png" href="images/favicon.png">
 </head>
+
 <body>
   <header class="topbar">
-    <a class="brand" href="#home" aria-label="TimeStop — главная">
-      <span class="brand-mark">◷</span><span>Time<span class="accent">Stop</span></span>
+    <a class="brand" href="#home" aria-label="TimeStop — басты бет">
+      <span class="brand-mark">◷</span>
+      <span>Time<span class="accent">Stop</span></span>
     </a>
-    <nav class="nav" aria-label="Главная навигация">
-      <a href="#home">Главная</a>
-      <a href="#tools">Инструменты</a>
-      <a href="#about">О проекте</a>
+
+    <nav class="nav" aria-label="Басты навигация">
+      <a href="#home">Басты бет</a>
+      <a href="#tools">Құралдар</a>
+      <a href="#about">Жоба туралы</a>
     </nav>
-    <div class="live-pill"><span class="live-dot"></span> Твоё время под контролем</div>
+
+    <div class="live-pill">
+      <span class="live-dot"></span>
+      Уақытың өз бақылауыңда
+    </div>
   </header>
 
   <main id="home">
+
+    <!-- БАСТЫ БӨЛІМ -->
     <section class="hero">
       <div class="hero-copy">
-        <p class="eyebrow"><span class="eyebrow-line"></span> УПРАВЛЯЙ СВОИМ ВРЕМЕНЕМ</p>
-        <h1>Каждая секунда<br>имеет <span class="gradient-text">значение.</span></h1>
-        <p class="hero-description">Простой и удобный инструмент для концентрации, учёбы, тренировок и ежедневных задач.</p>
-        <a class="hero-button" href="#tools">Начать пользоваться <span>↘</span></a>
+        <p class="eyebrow">
+          <span class="eyebrow-line"></span>
+          УАҚЫТЫҢДЫ БАСҚАР
+        </p>
+
+        <h1>
+          Әрбір секундтың<br>
+          <span class="gradient-text">маңызы бар.</span>
+        </h1>
+
+        <p class="hero-description">
+          Оқу, жаттығу, зейінді шоғырландыру және күнделікті
+          тапсырмаларға арналған қарапайым әрі ыңғайлы құрал.
+        </p>
+
+        <a class="hero-button" href="#tools">
+          Қолдануды бастау <span>↘</span>
+        </a>
+
         <div class="hero-stats">
-          <div><strong>2</strong><span>инструмента</span></div>
+          <div>
+            <strong>2</strong>
+            <span>құрал</span>
+          </div>
+
           <div class="stat-divider"></div>
-          <div><strong>00:00</strong><span>лишних сложностей</span></div>
+
+          <div>
+            <strong>00:00</strong>
+            <span>артық қиындық жоқ</span>
+          </div>
+
           <div class="stat-divider"></div>
-          <div><strong>∞</strong><span>возможностей</span></div>
-        </div>
-      </div>
-      <div class="hero-art" aria-label="Декоративная иллюстрация секундомера">
-        <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
-        <div class="glow"></div>
-        <div class="stopwatch-art">
-          <div class="watch-button"></div><div class="watch-crown"></div>
-          <div class="watch-face">
-            <span class="tick t1"></span><span class="tick t2"></span><span class="tick t3"></span><span class="tick t4"></span>
-            <span class="tick t5"></span><span class="tick t6"></span><span class="tick t7"></span><span class="tick t8"></span>
-            <span class="watch-hand"></span><span class="watch-pin"></span>
+
+          <div>
+            <strong>∞</strong>
+            <span>мүмкіндік</span>
           </div>
         </div>
-        <div class="floating-card floating-top"><span class="floating-icon">✦</span><div><b>Фокус включён</b><small>Время работать</small></div></div>
-        <div class="floating-card floating-bottom"><span class="mini-pulse"></span><div><b>Твой ритм</b><small>Твой результат</small></div></div>
+      </div>
+
+      <div class="hero-art" aria-label="Секундөлшегіштің безендіру суреті">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="glow"></div>
+
+        <div class="stopwatch-art">
+          <div class="watch-button"></div>
+          <div class="watch-crown"></div>
+
+          <div class="watch-face">
+            <span class="tick t1"></span>
+            <span class="tick t2"></span>
+            <span class="tick t3"></span>
+            <span class="tick t4"></span>
+            <span class="tick t5"></span>
+            <span class="tick t6"></span>
+            <span class="tick t7"></span>
+            <span class="tick t8"></span>
+            <span class="watch-hand"></span>
+            <span class="watch-pin"></span>
+          </div>
+        </div>
+
+        <div class="floating-card floating-top">
+          <span class="floating-icon">✦</span>
+          <div>
+            <b>Зейін қосылды</b>
+            <small>Жұмыс уақыты</small>
+          </div>
+        </div>
+
+        <div class="floating-card floating-bottom">
+          <span class="mini-pulse"></span>
+          <div>
+            <b>Сенің қарқының</b>
+            <small>Сенің нәтижең</small>
+          </div>
+        </div>
       </div>
     </section>
 
+    <!-- ҚҰРАЛДАР -->
     <section class="tools-section" id="tools">
       <div class="section-heading">
-        <div><p class="eyebrow">ВЫБЕРИ ИНСТРУМЕНТ</p><h2>Время работать.</h2></div>
-        <p>Всё необходимое — в одном месте.</p>
+        <div>
+          <p class="eyebrow">ҚҰРАЛДЫ ТАҢДА</p>
+          <h2>Жұмысқа кірісейік.</h2>
+        </div>
+
+        <p>Қажетті нәрсенің бәрі бір жерде.</p>
       </div>
 
       <div class="tool-layout">
+
+        <!-- ТАЙМЕР -->
         <section class="app-card timer-card" id="timerCard">
           <div class="card-top">
-            <div><span class="card-kicker">01 / ОБРАТНЫЙ ОТСЧЁТ</span><h3>Таймер</h3></div>
+            <div>
+              <span class="card-kicker">01 / КЕРІ САНАҚ</span>
+              <h3>Таймер</h3>
+            </div>
+
             <span class="card-symbol purple-symbol">◷</span>
           </div>
-          <p class="card-description">Задай время и позволь TimeStop следить за отсчётом.</p>
 
-          <div class="timer-display" aria-label="Оставшееся время">
-            <div class="time-unit"><input id="hours" type="number" min="0" max="99" value="0" aria-label="Часы"><span>ЧАСЫ</span></div>
+          <p class="card-description">
+            Уақытты орнат та, санауды TimeStop-қа тапсыр.
+          </p>
+
+          <div class="timer-display" aria-label="Қалған уақыт">
+            <div class="time-unit">
+              <input id="hours" type="number" min="0" max="99"
+                value="0" aria-label="Сағат">
+              <span>САҒАТ</span>
+            </div>
+
             <b class="time-colon">:</b>
-            <div class="time-unit"><input id="minutes" type="number" min="0" max="59" value="5" aria-label="Минуты"><span>МИНУТЫ</span></div>
+
+            <div class="time-unit">
+              <input id="minutes" type="number" min="0" max="59"
+                value="5" aria-label="Минут">
+              <span>МИНУТ</span>
+            </div>
+
             <b class="time-colon">:</b>
-            <div class="time-unit"><input id="seconds" type="number" min="0" max="59" value="0" aria-label="Секунды"><span>СЕКУНДЫ</span></div>
+
+            <div class="time-unit">
+              <input id="seconds" type="number" min="0" max="59"
+                value="0" aria-label="Секунд">
+              <span>СЕКУНД</span>
+            </div>
           </div>
 
-          <div class="progress-track"><div id="timerProgress"></div></div>
-          <div class="timer-status" id="timerMessage" aria-live="polite">Готов к запуску</div>
+          <div class="progress-track">
+            <div id="timerProgress"></div>
+          </div>
+
+          <div class="timer-status" id="timerMessage" aria-live="polite">
+            Іске қосуға дайын
+          </div>
+
           <div class="button-row">
-            <button class="btn btn-primary" id="startTimer">▶ <span>Старт</span></button>
-            <button class="btn btn-secondary" id="pauseTimer">Ⅱ <span>Пауза</span></button>
-            <button class="btn btn-ghost" id="resetTimer" aria-label="Сбросить таймер" title="Сбросить">↻</button>
+            <button class="btn btn-primary" id="startTimer">
+              ▶ <span>Бастау</span>
+            </button>
+
+            <button class="btn btn-secondary" id="pauseTimer">
+              Ⅱ <span>Үзіліс</span>
+            </button>
+
+            <button class="btn btn-ghost" id="resetTimer"
+              aria-label="Таймерді қалпына келтіру" title="Қалпына келтіру">
+              ↻
+            </button>
           </div>
-          <div class="presets"><span>БЫСТРЫЙ ВЫБОР</span>
-            <button data-minutes="1">1 мин</button><button data-minutes="5">5 мин</button><button data-minutes="10">10 мин</button><button data-minutes="25">25 мин</button>
+
+          <div class="presets">
+            <span>ЖЫЛДАМ ТАҢДАУ</span>
+            <button data-minutes="1">1 мин</button>
+            <button data-minutes="5">5 мин</button>
+            <button data-minutes="10">10 мин</button>
+            <button data-minutes="25">25 мин</button>
           </div>
         </section>
 
+        <!-- СЕКУНДОМЕР -->
         <section class="app-card stopwatch-card" id="stopwatchCard">
           <div class="card-top">
-            <div><span class="card-kicker">02 / ИЗМЕРЕНИЕ ВРЕМЕНИ</span><h3>Секундомер</h3></div>
+            <div>
+              <span class="card-kicker">02 / УАҚЫТТЫ ӨЛШЕУ</span>
+              <h3>Секундомер</h3>
+            </div>
+
             <span class="card-symbol cyan-symbol">◴</span>
           </div>
-          <p class="card-description">Запускай отсчёт, ставь на паузу и сохраняй круги.</p>
-          <div class="stopwatch-display" id="stopwatchDisplay">00<span>:</span>00<span>:</span>00<small>.00</small></div>
-          <div class="stopwatch-caption"><span class="status-indicator" id="watchIndicator"></span><span id="watchMessage" aria-live="polite">Готов к запуску</span></div>
-          <div class="button-row">
-            <button class="btn btn-primary cyan-button" id="startWatch">▶ <span>Старт</span></button>
-            <button class="btn btn-secondary" id="pauseWatch">Ⅱ <span>Пауза</span></button>
-            <button class="btn btn-ghost" id="resetWatch" aria-label="Сбросить секундомер" title="Сбросить">↻</button>
-            <button class="btn btn-ghost lap-button" id="lapWatch" aria-label="Записать круг" title="Записать круг">＋</button>
+
+          <p class="card-description">
+            Уақытты өлше, үзіліс жаса және айналымдарды сақта.
+          </p>
+
+          <div class="stopwatch-display" id="stopwatchDisplay">
+            00<span>:</span>00<span>:</span>00<small>.00</small>
           </div>
-          <div class="laps-heading"><span>КРУГИ</span><button id="clearLaps">Очистить</button></div>
-          <ol id="laps" class="laps"><li class="empty-lap">Круги появятся здесь после запуска</li></ol>
+
+          <div class="stopwatch-caption">
+            <span class="status-indicator" id="watchIndicator"></span>
+            <span id="watchMessage" aria-live="polite">
+              Іске қосуға дайын
+            </span>
+          </div>
+
+          <div class="button-row">
+            <button class="btn btn-primary cyan-button" id="startWatch">
+              ▶ <span>Бастау</span>
+            </button>
+
+            <button class="btn btn-secondary" id="pauseWatch">
+              Ⅱ <span>Үзіліс</span>
+            </button>
+
+            <button class="btn btn-ghost" id="resetWatch"
+              aria-label="Секундомерді қалпына келтіру"
+              title="Қалпына келтіру">
+              ↻
+            </button>
+
+            <button class="btn btn-ghost lap-button" id="lapWatch"
+              aria-label="Айналымды жазу" title="Айналымды жазу">
+              ＋
+            </button>
+          </div>
+
+          <div class="laps-heading">
+            <span>АЙНАЛЫМДАР</span>
+            <button id="clearLaps">Тазалау</button>
+          </div>
+
+          <ol id="laps" class="laps">
+            <li class="empty-lap">
+              Айналымдар осы жерде көрсетіледі
+            </li>
+          </ol>
         </section>
+
       </div>
     </section>
 
+    <!-- ЖОБА ТУРАЛЫ -->
     <section class="about-section" id="about">
       <div class="about-icon">✦</div>
-      <div><p class="eyebrow">МАЛЕНЬКИЙ ШАГ — БОЛЬШОЙ РЕЗУЛЬТАТ</p><h2>Сосредоточься на главном.</h2><p>Выбери задачу, установи время и начни. TimeStop помогает держать темп и не отвлекаться на лишнее.</p></div>
-      <a href="#tools" class="about-link">Попробовать <span>↗</span></a>
+
+      <div>
+        <p class="eyebrow">КІШКЕНТАЙ ҚАДАМ — ҮЛКЕН НӘТИЖЕ</p>
+
+        <h2>Ең маңызды іске назар аудар.</h2>
+
+        <p>
+          Тапсырманы таңда, уақытты орнат және жұмысты баста.
+          TimeStop уақытыңды тиімді пайдалануға және
+          назарыңды маңызды іске аударуға көмектеседі.
+        </p>
+      </div>
+
+      <a href="#tools" class="about-link">
+        Байқап көру <span>↗</span>
+      </a>
     </section>
+
   </main>
 
-  <footer><a class="brand" href="#home"><span class="brand-mark">◷</span><span>Time<span class="accent">Stop</span></span></a><span>ТВОЁ ВРЕМЯ ИМЕЕТ ЗНАЧЕНИЕ</span><span>© 2026 TimeStop</span></footer>
+  <!-- ТАЙМЕР АЯҚТАЛҒАНДАҒЫ GIF ТЕРЕЗЕСІ -->
+  <div id="finishPopup" class="finish-popup">
+    <div class="finish-card">
+      <button id="closeFinish" class="finish-close"
+        aria-label="Жабу">×</button>
+
+      <img src="images/finished.gif.gif" alt="Құттықтау анимациясы">
+
+      <h2>Уақыт аяқталды! 🎉</h2>
+      <p>Керемет жұмыс! Сен тапсырманы орындадың!</p>
+
+      <button id="continueFinish">Жалғастыру</button>
+    </div>
+  </div>
+
+  <!-- ТӨМЕНГІ БӨЛІМ -->
+  <footer>
+    <a class="brand" href="#home">
+      <span class="brand-mark">◷</span>
+      <span>Time<span class="accent">Stop</span></span>
+    </a>
+
+    <span>СЕНІҢ УАҚЫТЫҢНЫҢ МАҢЫЗЫ БАР</span>
+    <span>© 2026 TimeStop</span>
+  </footer>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script src="script.js"></script>
 </body>
 </html>

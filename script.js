@@ -1,282 +1,417 @@
-const $ = (id) => document.getElementById(id);
 
-// Небольшое уведомление внизу страницы
+// ===== ЭЛЕМЕНТТЕР =====
+const hoursInput = document.getElementById("hours");
+const minutesInput = document.getElementById("minutes");
+const secondsInput = document.getElementById("seconds");
+
+const timerProgress = document.getElementById("timerProgress");
+const timerMessage = document.getElementById("timerMessage");
+
+const finishPopup = document.getElementById("finishPopup");
+const closeFinish = document.getElementById("closeFinish");
+const continueFinish = document.getElementById("continueFinish");
+
+const toast = document.getElementById("toast");
+
+// ===== ХАБАРЛАМА =====
 let toastTimeout;
-function notify(message) {
-  const toast = $("toast");
-  toast.textContent = message;
-  toast.classList.add("show");
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => toast.classList.remove("show"), 2400);
+
+function showToast(message) {
+    if (!toast) return;
+
+    toast.textContent = message;
+    toast.classList.add("show");
+
+    clearTimeout(toastTimeout);
+
+    toastTimeout = setTimeout(() => {
+        toast.classList.remove("show");
+    }, 2500);
 }
 
-// ---------- ТАЙМЕР ----------
-let timerRemaining = 0;       // миллисекунды
-let timerTotal = 0;
-let timerDeadline = 0;
+// ===== ДЫБЫС =====
+let audioContext;
+
+function unlockAudio() {
+    try {
+        if (!audioContext) {
+            audioContext = new (
+                window.AudioContext || window.webkitAudioContext
+            )();
+        }
+
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
+        }
+    } catch (error) {
+        console.log("Дыбысты қосу мүмкін болмады:", error);
+    }
+}
+
+function playFinishedSound() {
+    try {
+        if (!audioContext) return;
+
+        if (audioContext.state === "suspended") {
+            audioContext.resume();
+        }
+
+        const notes = [523.25, 659.25, 783.99, 1046.5];
+
+        notes.forEach((frequency, index) => {
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+
+            oscillator.type = "sine";
+            oscillator.frequency.value = frequency;
+
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            const startTime = audioContext.currentTime + index * 0.18;
+
+            gain.gain.setValueAtTime(0.15, startTime);
+            gain.gain.exponentialRampToValueAtTime(
+                0.001,
+                startTime + 0.35
+            );
+
+            oscillator.start(startTime);
+            oscillator.stop(startTime + 0.35);
+        });
+    } catch (error) {
+        console.log("Дыбыс ойнатылмады:", error);
+    }
+}
+
+// ===== GIF ТЕРЕЗЕСІ =====
+function showFinishPopup() {
+    finishPopup?.classList.add("show");
+    playFinishedSound();
+}
+
+function hideFinishPopup() {
+    finishPopup?.classList.remove("show");
+}
+
+closeFinish?.addEventListener("click", hideFinishPopup);
+continueFinish?.addEventListener("click", hideFinishPopup);
+
+// ===== ТАЙМЕР =====
 let timerInterval = null;
-let timerFinished = false;
+let timerRemaining = 0;
+let timerTotal = 0;
 
-function readTimerInputs() {
-  const fields = [$("hours"), $("minutes"), $("seconds")];
-  const values = fields.map(field => field.value.trim());
-  const nums = values.map(Number);
+function getInputTime() {
+    const h = Math.max(0, Number(hoursInput.value) || 0);
+    const m = Math.max(0, Number(minutesInput.value) || 0);
+    const s = Math.max(0, Number(secondsInput.value) || 0);
 
-  if (values.some(v => v === "") || nums.some(n => !Number.isInteger(n) || n < 0) ||
-      nums[0] > 99 || nums[1] > 59 || nums[2] > 59) {
-    $("timerMessage").textContent = "Проверь часы, минуты и секунды.";
-    return null;
-  }
-  return nums[0] * 3600 + nums[1] * 60 + nums[2];
+    return h * 3600 + m * 60 + s;
 }
 
-function setTimerInputs(totalSeconds) {
-  const seconds = Math.max(0, Math.ceil(totalSeconds));
-  $("hours").value = Math.floor(seconds / 3600);
-  $("minutes").value = Math.floor((seconds % 3600) / 60);
-  $("seconds").value = seconds % 60;
+function updateTimerDisplay() {
+    const h = Math.floor(timerRemaining / 3600);
+    const m = Math.floor((timerRemaining % 3600) / 60);
+    const s = timerRemaining % 60;
+
+    hoursInput.value = h;
+    minutesInput.value = m;
+    secondsInput.value = s;
+
+    if (timerTotal > 0) {
+        const progress =
+            ((timerTotal - timerRemaining) / timerTotal) * 100;
+
+        timerProgress.style.width = progress + "%";
+    } else {
+        timerProgress.style.width = "0%";
+    }
 }
 
-function renderTimer() {
-  const remainingSeconds = Math.max(0, Math.ceil(timerRemaining / 1000));
-  setTimerInputs(remainingSeconds);
-  const percent = timerTotal > 0 ? Math.max(0, timerRemaining / timerTotal * 100) : 100;
-  $("timerProgress").style.width = `${percent}%`;
-}
-
-function stopTimerInterval() {
-  if (timerInterval !== null) {
+function stopTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
-  }
 }
 
-function timerTick() {
-  timerRemaining = Math.max(0, timerDeadline - Date.now());
-  renderTimer();
-  if (timerRemaining <= 0) {
-    stopTimerInterval();
-    timerFinished = true;
-    $("timerMessage").textContent = "✓ Время вышло! Отличная работа.";
-    $("timerProgress").style.width = "0%";
-    notify("Время вышло!");
-    // Звуковой сигнал при окончании таймера
-try {
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+function startTimer() {
+    if (timerInterval) return;
 
-  if (AudioContextClass) {
-    const ctx = new AudioContextClass();
+    unlockAudio();
 
-    const playBeep = (frequency, startTime, duration) => {
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      oscillator.type = "sine";
-      oscillator.frequency.value = frequency;
-
-      gain.gain.setValueAtTime(0.001, startTime);
-      gain.gain.linearRampToValueAtTime(0.3, startTime + 0.03);
-      gain.gain.setValueAtTime(0.3, startTime + duration - 0.05);
-      gain.gain.linearRampToValueAtTime(0.001, startTime + duration);
-
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-
-      oscillator.start(startTime);
-      oscillator.stop(startTime + duration);
-    };
-
-    if (ctx.state === "suspended") {
-      ctx.resume().then(() => {
-        const now = ctx.currentTime;
-        playBeep(880, now, 0.3);
-        playBeep(880, now + 0.4, 0.3);
-        setTimeout(() => ctx.close(), 1200);
-      });
-    } else {
-      const now = ctx.currentTime;
-      playBeep(880, now, 0.3);
-      playBeep(880, now + 0.4, 0.3);
-      setTimeout(() => ctx.close(), 1200);
+    if (timerRemaining <= 0) {
+        timerRemaining = getInputTime();
+        timerTotal = timerRemaining;
     }
-  }
-} catch (error) {
-  console.log("Не удалось воспроизвести сигнал:", error);
-}
-  }
-}
 
-$("startTimer").addEventListener("click", () => {
-  if (timerInterval !== null) return;
-
-  if (timerRemaining <= 0 || timerFinished) {
-    const seconds = readTimerInputs();
-    if (seconds === null) return;
-    if (seconds <= 0) {
-      $("timerMessage").textContent = "Сначала установи время больше нуля.";
-      notify("Установи время больше нуля");
-      return;
+    if (timerRemaining <= 0) {
+        showToast("Алдымен уақытты енгіз!");
+        return;
     }
-    timerRemaining = seconds * 1000;
-    timerTotal = timerRemaining;
-    timerFinished = false;
-  }
 
-  timerDeadline = Date.now() + timerRemaining;
-  $("timerMessage").textContent = "Таймер запущен — сосредоточься на главном.";
-  timerInterval = setInterval(timerTick, 100);
-  timerTick();
-});
+    hideFinishPopup();
 
-$("pauseTimer").addEventListener("click", () => {
-  if (timerInterval === null) {
-    $("timerMessage").textContent = "Таймер уже на паузе.";
-    return;
-  }
-  timerRemaining = Math.max(0, timerDeadline - Date.now());
-  stopTimerInterval();
-  renderTimer();
-  $("timerMessage").textContent = "Отсчёт приостановлен.";
-});
+    timerMessage.textContent = "Таймер жұмыс істеп тұр...";
+    timerMessage.style.color = "#70eaff";
 
-$("resetTimer").addEventListener("click", () => {
-  stopTimerInterval();
-  timerRemaining = 0;
-  timerTotal = 0;
-  timerFinished = false;
-  $("hours").value = 0;
-  $("minutes").value = 5;
-  $("seconds").value = 0;
-  $("timerProgress").style.width = "100%";
-  $("timerMessage").textContent = "Готов к запуску";
-});
+    timerInterval = setInterval(() => {
+        timerRemaining--;
 
-document.querySelectorAll("[data-minutes]").forEach(button => {
-  button.addEventListener("click", () => {
-    stopTimerInterval();
-    const minutes = Number(button.dataset.minutes);
-    $("hours").value = Math.floor(minutes / 60);
-    $("minutes").value = minutes % 60;
-    $("seconds").value = 0;
+        updateTimerDisplay();
+
+        if (timerRemaining <= 0) {
+            stopTimer();
+
+            timerRemaining = 0;
+            timerTotal = 0;
+
+            updateTimerDisplay();
+
+            timerMessage.textContent = "Уақыт аяқталды!";
+            showFinishPopup();
+
+            showToast("Уақытың аяқталды! 🎉");
+        }
+    }, 1000);
+}
+
+function pauseTimer() {
+    if (!timerInterval) return;
+
+    stopTimer();
+    timerMessage.textContent = "Таймер уақытша тоқтады";
+}
+
+function resetTimer() {
+    stopTimer();
+
     timerRemaining = 0;
     timerTotal = 0;
-    timerFinished = false;
-    $("timerProgress").style.width = "100%";
-    $("timerMessage").textContent = `Выбрано ${minutes} мин. Готов к запуску.`;
-  });
+
+    hoursInput.value = 0;
+    minutesInput.value = 0;
+    secondsInput.value = 0;
+
+    timerProgress.style.width = "0%";
+    timerMessage.textContent = "Іске қосуға дайын";
+
+    hideFinishPopup();
+}
+
+document.getElementById("startTimer")
+    .addEventListener("click", startTimer);
+
+document.getElementById("pauseTimer")
+    .addEventListener("click", pauseTimer);
+
+document.getElementById("resetTimer")
+    .addEventListener("click", resetTimer);
+
+// ===== ЖЫЛДАМ ТАҢДАУ =====
+document.querySelectorAll(".presets button").forEach(button => {
+    button.addEventListener("click", () => {
+        stopTimer();
+
+        const minutes = Number(button.dataset.minutes);
+
+        hoursInput.value = 0;
+        minutesInput.value = minutes;
+        secondsInput.value = 0;
+
+        timerRemaining = minutes * 60;
+        timerTotal = timerRemaining;
+
+        updateTimerDisplay();
+
+        timerMessage.textContent = "Іске қосуға дайын";
+    });
 });
 
-[$("hours"), $("minutes"), $("seconds")].forEach(input => {
-  input.addEventListener("input", () => {
-    if (timerInterval !== null) {
-      stopTimerInterval();
-      timerRemaining = 0;
-      timerTotal = 0;
-      timerFinished = false;
-      $("timerMessage").textContent = "Время изменено. Нажми «Старт».";
-      $("timerProgress").style.width = "100%";
+// ===== САН ЕНГІЗУДІ ТҮЗЕТУ =====
+const timeInputs = [
+    hoursInput,
+    minutesInput,
+    secondsInput
+];
+
+timeInputs.forEach(input => {
+    // 0 санын басқанда автоматты түрде өшіру
+    input.addEventListener("focus", () => {
+        if (input.value === "0") {
+            input.value = "";
+        }
+    });
+
+    // Өрістен шыққанда бос болса, 0 қою
+    input.addEventListener("blur", () => {
+        if (input.value === "") {
+            input.value = "0";
+        }
+
+        updateInputTime();
+    });
+
+    // Сан енгізілген сайын уақытты жаңарту
+    input.addEventListener("input", () => {
+        updateInputTime();
+    });
+});
+
+function updateInputTime() {
+    if (timerInterval) {
+        stopTimer();
     }
-  });
-});
 
-// ---------- СЕКУНДОМЕР ----------
-let watchElapsed = 0;
-let watchStartedAt = 0;
+    timerRemaining = getInputTime();
+    timerTotal = timerRemaining;
+
+    if (timerTotal > 0) {
+        timerProgress.style.width = "0%";
+    } else {
+        timerProgress.style.width = "0%";
+    }
+
+    timerMessage.textContent = "Іске қосуға дайын";
+}
+
+// ===== СЕКУНДОМЕР =====
 let watchInterval = null;
-let lapStartElapsed = 0;
-let lapNumber = 0;
+let watchStart = 0;
+let watchElapsed = 0;
+let laps = [];
 
-function elapsedWatchMs() {
-  return watchElapsed + (watchInterval !== null ? Date.now() - watchStartedAt : 0);
+const stopwatchDisplay =
+    document.getElementById("stopwatchDisplay");
+
+const watchMessage =
+    document.getElementById("watchMessage");
+
+const watchIndicator =
+    document.getElementById("watchIndicator");
+
+const lapsList =
+    document.getElementById("laps");
+
+function formatWatch(time) {
+    const centiseconds = Math.floor(time / 10) % 100;
+    const seconds = Math.floor(time / 1000) % 60;
+    const minutes = Math.floor(time / 60000) % 60;
+    const hours = Math.floor(time / 3600000);
+
+    return (
+        String(hours).padStart(2, "0") + ":" +
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0") +
+        "<small>." +
+        String(centiseconds).padStart(2, "0") +
+        "</small>"
+    );
 }
 
-function formatStopwatch(milliseconds) {
-  const totalCs = Math.floor(milliseconds / 10);
-  const centiseconds = totalCs % 100;
-  const totalSeconds = Math.floor(totalCs / 100);
-  const seconds = totalSeconds % 60;
-  const minutes = Math.floor(totalSeconds / 60) % 60;
-  const hours = Math.floor(totalSeconds / 3600);
-  return {
-    main: [hours, minutes, seconds].map(n => String(n).padStart(2, "0")),
-    cs: String(centiseconds).padStart(2, "0")
-  };
+function updateWatch() {
+    const currentTime =
+        watchElapsed + (Date.now() - watchStart);
+
+    stopwatchDisplay.innerHTML = formatWatch(currentTime);
 }
 
-function renderWatch() {
-  const t = formatStopwatch(elapsedWatchMs());
-  $("stopwatchDisplay").innerHTML =
-    `${t.main[0]}<span>:</span>${t.main[1]}<span>:</span>${t.main[2]}<small>.${t.cs}</small>`;
+function startWatch() {
+    if (watchInterval) return;
+
+    watchStart = Date.now();
+
+    watchInterval = setInterval(updateWatch, 10);
+
+    watchMessage.textContent = "Секундөлшегіш жұмыс істеп тұр";
+    watchIndicator.style.background = "#50e6a8";
 }
 
-function renderWatchStatus() {
-  $("watchIndicator").classList.toggle("running", watchInterval !== null);
+function pauseWatch() {
+    if (!watchInterval) return;
+
+    watchElapsed += Date.now() - watchStart;
+
+    clearInterval(watchInterval);
+    watchInterval = null;
+
+    updateWatch();
+
+    watchMessage.textContent = "Уақытша тоқтады";
+    watchIndicator.style.background = "#596984";
 }
 
-$("startWatch").addEventListener("click", () => {
-  if (watchInterval !== null) return;
-  watchStartedAt = Date.now();
-  watchInterval = setInterval(renderWatch, 30);
-  $("watchMessage").textContent = "Секундомер работает";
-  renderWatchStatus();
-});
+function resetWatch() {
+    clearInterval(watchInterval);
 
-$("pauseWatch").addEventListener("click", () => {
-  if (watchInterval === null) {
-    $("watchMessage").textContent = "Секундомер уже на паузе";
-    return;
-  }
-  watchElapsed += Date.now() - watchStartedAt;
-  clearInterval(watchInterval);
-  watchInterval = null;
-  renderWatch();
-  renderWatchStatus();
-  $("watchMessage").textContent = "Секундомер приостановлен";
-});
+    watchInterval = null;
+    watchElapsed = 0;
+    watchStart = 0;
 
-$("resetWatch").addEventListener("click", () => {
-  if (watchInterval !== null) clearInterval(watchInterval);
-  watchInterval = null;
-  watchElapsed = 0;
-  lapStartElapsed = 0;
-  lapNumber = 0;
-  renderWatch();
-  renderWatchStatus();
-  $("watchMessage").textContent = "Готов к запуску";
-  $("laps").innerHTML = '<li class="empty-lap">Круги появятся здесь после запуска</li>';
-});
+    stopwatchDisplay.innerHTML = formatWatch(0);
 
-$("lapWatch").addEventListener("click", () => {
-  if (watchInterval === null) {
-    notify("Сначала запусти секундомер");
-    $("watchMessage").textContent = "Запусти секундомер, чтобы записать круг.";
-    return;
-  }
-  const current = elapsedWatchMs();
-  const lapTime = current - lapStartElapsed;
-  lapStartElapsed = current;
-  lapNumber++;
+    watchMessage.textContent = "Іске қосуға дайын";
+    watchIndicator.style.background = "#596984";
 
-  const empty = $("laps").querySelector(".empty-lap");
-  if (empty) empty.remove();
+    laps = [];
+    renderLaps();
+}
 
-  const full = formatStopwatch(current);
-  const lap = formatStopwatch(lapTime);
-  const li = document.createElement("li");
-  const label = document.createElement("span");
-  const total = document.createElement("span");
-  label.textContent = `Круг ${lapNumber} · +${lap.main.join(":")}.${lap.cs}`;
-  total.textContent = full.main.join(":") + "." + full.cs;
-  li.append(label, total);
-  $("laps").prepend(li);
-});
+function addLap() {
+    if (!watchInterval && watchElapsed === 0) {
+        showToast("Алдымен секундөлшегішті қос!");
+        return;
+    }
 
-$("clearLaps").addEventListener("click", () => {
-  lapNumber = 0;
-  lapStartElapsed = elapsedWatchMs();
-  $("laps").innerHTML = '<li class="empty-lap">Круги очищены — продолжай отсчёт</li>';
-});
+    const currentTime =
+        watchElapsed +
+        (watchInterval ? Date.now() - watchStart : 0);
 
-renderTimer();
-renderWatch();
-renderWatchStatus();
+    laps.push(currentTime);
+    renderLaps();
+}
+
+function renderLaps() {
+    lapsList.innerHTML = "";
+
+    if (laps.length === 0) {
+        lapsList.innerHTML =
+            '<li class="empty-lap">Айналымдар осы жерде көрсетіледі</li>';
+        return;
+    }
+
+    laps.forEach((lap, index) => {
+        const li = document.createElement("li");
+
+        const name = document.createElement("span");
+        name.textContent = "Айналым " + (index + 1);
+
+        const time = document.createElement("span");
+        time.textContent = formatWatch(lap)
+            .replace(/<small>|<\/small>/g, "");
+
+        li.append(name, time);
+        lapsList.appendChild(li);
+    });
+}
+
+document.getElementById("startWatch")
+    .addEventListener("click", startWatch);
+
+document.getElementById("pauseWatch")
+    .addEventListener("click", pauseWatch);
+
+document.getElementById("resetWatch")
+    .addEventListener("click", resetWatch);
+
+document.getElementById("lapWatch")
+    .addEventListener("click", addLap);
+
+document.getElementById("clearLaps")
+    .addEventListener("click", () => {
+        laps = [];
+        renderLaps();
+    });
+
+// ===== БАСТАПҚЫ КӨРІНІС =====
+updateTimerDisplay();
+renderLaps();
