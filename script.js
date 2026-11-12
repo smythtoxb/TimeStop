@@ -309,8 +309,8 @@ function formatWatch(time) {
 }
 
 function updateWatch() {
-    const currentTime =
-        watchElapsed + (Date.now() - watchStart);
+    const currentTime = watchElapsed +
+        (watchInterval !== null ? Date.now() - watchStart : 0);
 
     stopwatchDisplay.innerHTML = formatWatch(currentTime);
 }
